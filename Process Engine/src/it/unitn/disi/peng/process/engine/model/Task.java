@@ -33,7 +33,7 @@ public class Task {
 	public void execute(Activity activity) {
 	    Log.i(this.getClass().getName(), "Executing task: " + name);
 		if (className.equals(Service.FORM_SERVICE)) {
-			activity.setContentView(service.getView());
+			activity.setContentView(service.getView(activity));
 		}
 	}
 }

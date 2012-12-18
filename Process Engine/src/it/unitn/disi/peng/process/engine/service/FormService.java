@@ -11,8 +11,7 @@ import android.widget.LinearLayout;
 public class FormService extends Service {
 	List<FormElement> elements;
 	
-	public FormService(Context context) {
-		super(context);
+	public FormService() {
 		this.elements = new ArrayList<FormElement>();
 	}
 
@@ -20,7 +19,7 @@ public class FormService extends Service {
 		elements.add(e);
 	}
 	
-	public View getView() {
+	public View getView(Context context) {
 		LinearLayout layout = new LinearLayout(context);
 		layout.setOrientation(LinearLayout.VERTICAL);
 		Iterator<FormElement> iterator = elements.iterator();

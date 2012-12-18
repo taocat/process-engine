@@ -59,37 +59,59 @@ public class BpmnParser {
 				
 				for (int j = 0; j < taskElements.getLength(); j++) {
 					Element taskElement = (Element) taskElements.item(j);
-					String taskName = xPath.evaluate("@name", taskElement);
-					Node service = (Node) xPath.evaluate("ns:extensionElements/mpe:service", taskElement, XPathConstants.NODE);
-					String className = xPath.evaluate("@class", service);
-					Log.i(this.getClass().getName(), taskName + ":" + className);
-					
-					if (className.equals(Service.FORM_SERVICE)) {
-						FormService fs = new FormService(activity);
-						NodeList serviceElements = service.getChildNodes();
-						for (int k = 0; k < serviceElements.getLength(); k++) {
-							Node serviceElement = serviceElements.item(k);
-							String serviceElementName = serviceElement.getNodeName();
-							if (serviceElementName.equals("mpe:text")) {
-								String id = xPath.evaluate("@id", serviceElement);
-								String value = xPath.evaluate("@value", serviceElement);
-								Text text = new Text(id, "", value);
-								fs.addElement(text);
-								Log.i(this.getClass().getName(), "mpe:text");
-							}
-							else if (serviceElementName.equals("mpe:input")) {
-								Log.i(this.getClass().getName(), "mpe:input");
-							}
-						}
-						Task task = new Task(taskName, className, fs);
-						subProcess.addTask(task);
-					}
-					
+					Task task = parseTask(xPath, taskElement);
+					subProcess.addTask(task);
 				}
 				subProcess.execute(activity);
 			}
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Task parseTask(XPath xPath, Object object) {
+		Task task = null;
+
+		Element taskElement = (Element) object;
+		String taskName;
+		try {
+			taskName = xPath.evaluate("@name", taskElement);
+			Node service = (Node) xPath.evaluate(
+					"ns:extensionElements/mpe:service", taskElement,
+					XPathConstants.NODE);
+			String className = xPath.evaluate("@class", service);
+			Log.i(this.getClass().getName(), taskName + ":" + className);
+
+			if (className.equals(Service.FORM_SERVICE)) {
+				FormService fs = new FormService();
+				NodeList serviceElements = service.getChildNodes();
+				for (int k = 0; k < serviceElements.getLength(); k++) {
+					Node serviceElement = serviceElements.item(k);
+					String serviceElementName = serviceElement.getNodeName();
+					if (serviceElementName.equals("mpe:text")) {
+						String id = xPath.evaluate("@id", serviceElement);
+						String value = xPath.evaluate("@value", serviceElement);
+						Text text = new Text(id, "", value);
+						fs.addElement(text);
+						Log.i(this.getClass().getName(), "mpe:text");
+					}
+					else if (serviceElementName.equals("mpe:input")) {
+						String id = xPath.evaluate("@id", serviceElement);
+						String type = xPath.evaluate("@type", serviceElement);
+						String value = xPath.evaluate("@value", serviceElement);
+						Input input = new Input(id, type, value);
+						fs.addElement(input);
+						Log.i(this.getClass().getName(), "mpe:input");
+					}
+				}
+				task = new Task(taskName, className, fs);
+			} else if (className.equals(Service.EMAIL_SERVICE)) {
+
+			}
+		} catch (XPathExpressionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return task;
 	}
 }
