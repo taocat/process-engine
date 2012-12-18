@@ -31,24 +31,18 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	private static void parseBpmn() {
+	private void parseBpmn() {
 		File SDCardRoot = Environment.getExternalStorageDirectory();
-		File file = new File(SDCardRoot, "MDO control_annotated.bpmn");
+		File file = new File(SDCardRoot, "MDO_control_annotated.bpmn");
 //		File file = new File("MDO control_annotated.bpmn");
 		InputStream in = null;
 
-		BpmnParser parser = new BpmnParser();
+		BpmnParser parser = new BpmnParser(this);
 
 		try {
 			in = new FileInputStream(file);
 			parser.parse(in);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -64,9 +58,5 @@ public class MainActivity extends Activity {
 				}
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		parseBpmn();
 	}
 }
