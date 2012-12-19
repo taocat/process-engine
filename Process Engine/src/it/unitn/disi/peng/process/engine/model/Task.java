@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.util.Log;
 
 public class Task {
+	private String id;
 	private String name;
 	private String className;
 	private Service service;
@@ -12,10 +13,19 @@ public class Task {
 	public Task() {
 	}
 	
-	public Task(String name, String className, Service service) {
+	public Task(String id, String name, String className, Service service) {
+		this.id = id;
 		this.name = name;
 		this.className = className;
 		this.service = service;
+	}
+	
+	public String getId() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public void setName(String name) {

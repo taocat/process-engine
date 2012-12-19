@@ -60,7 +60,9 @@ public class BpmnParser {
 				for (int j = 0; j < taskElements.getLength(); j++) {
 					Element taskElement = (Element) taskElements.item(j);
 					Task task = parseTask(xPath, taskElement);
-					subProcess.addTask(task);
+					if (task.getId().equals("sid-58B553CF-485F-48E9-98AD-222D1EB2C7A9")) {
+						subProcess.addTask(task);
+					}
 				}
 				subProcess.execute(activity);
 			}
@@ -73,8 +75,10 @@ public class BpmnParser {
 		Task task = null;
 
 		Element taskElement = (Element) object;
+		String taskId;
 		String taskName;
 		try {
+			taskId = xPath.evaluate("@id", taskElement);
 			taskName = xPath.evaluate("@name", taskElement);
 			Node service = (Node) xPath.evaluate(
 					"ns:extensionElements/mpe:service", taskElement,
@@ -99,17 +103,38 @@ public class BpmnParser {
 						String id = xPath.evaluate("@id", serviceElement);
 						String type = xPath.evaluate("@type", serviceElement);
 						String value = xPath.evaluate("@value", serviceElement);
-						Input input = new Input(id, type, value);
-						fs.addElement(input);
+						if(type.equals("text")) {
+							Input input = new Input(id, type, value);
+							fs.addElement(input);
+						}
+						else if(type.equals("submit")) {
+							Button button = new Button(id, type, value);
+							fs.addElement(button);
+						}
 						Log.i(this.getClass().getName(), "mpe:input");
 					}
+					else if (serviceElementName.equals("mpe:select")) {
+						String id = xPath.evaluate("@id", serviceElement);
+						NodeList optionElements = (NodeList) xPath.evaluate("mpe:option", serviceElement, XPathConstants.NODESET);
+						String[] textArray = new String[optionElements.getLength()];
+						String[] valueArray = new String[optionElements.getLength()];
+						for (int m = 0; m < optionElements.getLength(); m++) {
+							Node optionElement = optionElements.item(m);
+							String text = optionElement.getTextContent();
+							String value = xPath.evaluate("@value", optionElement);
+							textArray[m] = text;
+							valueArray[m] = value;
+						}
+						Select select = new Select(id, "", "");
+						select.setOptions(textArray, valueArray);
+						fs.addElement(select);
+					}
 				}
-				task = new Task(taskName, className, fs);
+				task = new Task(taskId, taskName, className, fs);
 			} else if (className.equals(Service.EMAIL_SERVICE)) {
 
 			}
 		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return task;
