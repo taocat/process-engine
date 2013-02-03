@@ -7,9 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,7 +30,8 @@ public class MainActivity extends Activity {
 	
 	private void parseBpmn() {
 		File SDCardRoot = Environment.getExternalStorageDirectory();
-		File file = new File(SDCardRoot, "MDO_control_annotated.bpmn");
+//		File file = new File(SDCardRoot, "MDO_control_annotated.bpmn");
+		File file = new File(SDCardRoot, "MDO_control_simplest_annotated.bpmn");
 //		File file = new File("MDO control_annotated.bpmn");
 		InputStream in = null;
 

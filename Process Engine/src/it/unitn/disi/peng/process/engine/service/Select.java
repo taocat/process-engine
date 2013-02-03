@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 public class Select extends FormElement {
+	Spinner sp;
 	String[] textArray;
 	String[] valueArray;
 	
@@ -20,10 +21,14 @@ public class Select extends FormElement {
 	}
 
 	public View getView(Context context) {
-		Spinner sp = new Spinner(context);
+		sp = new Spinner(context);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(context,
 				android.R.layout.simple_spinner_item, textArray);
 		sp.setAdapter(adapter);
 		return sp;
+	}
+
+	public void updateValue() {
+		value = valueArray[sp.getSelectedItemPosition()];
 	}
 }

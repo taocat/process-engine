@@ -10,6 +10,7 @@ public abstract class FormElement {
 	protected String value;
 
 	public abstract View getView(Context context);
+	public abstract void updateValue();
 	
 	public View getLabel(Context context) {
 		TextView label = new TextView(context);
@@ -35,4 +36,7 @@ public abstract class FormElement {
 		return value;
 	}
 	
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

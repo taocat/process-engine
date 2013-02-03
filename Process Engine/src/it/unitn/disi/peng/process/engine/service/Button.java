@@ -13,4 +13,7 @@ public class Button extends FormElement{
 		bt.setText(value);
 		return bt;
 	}
+
+	public void updateValue() {
+	}
 }

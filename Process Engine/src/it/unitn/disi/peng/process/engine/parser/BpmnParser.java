@@ -1,5 +1,6 @@
 package it.unitn.disi.peng.process.engine.parser;
 
+import it.unitn.disi.peng.process.engine.model.Gateway;
 import it.unitn.disi.peng.process.engine.model.SubProcess;
 import it.unitn.disi.peng.process.engine.model.Task;
 import it.unitn.disi.peng.process.engine.service.*;
@@ -51,24 +52,65 @@ public class BpmnParser {
 			
 			for (int i = 0; i < subProcesses.getLength(); i++) {
 				Element subProcessElement = (Element) subProcesses.item(i);
-				NodeList taskElements = (NodeList) xPath.evaluate("ns:task", subProcessElement, XPathConstants.NODESET);
-				
 				String subProcessName = xPath.evaluate("@name", subProcessElement);
 				SubProcess subProcess = new SubProcess(subProcessName);
+				
+				NodeList taskElements = (NodeList) xPath.evaluate("ns:task|ns:startEvent|ns:endEvent", subProcessElement, XPathConstants.NODESET);
 				Log.i(this.getClass().getName(), "task:" + subProcessElement.getChildNodes().getLength() + ":" + taskElements.getLength());
 				
 				for (int j = 0; j < taskElements.getLength(); j++) {
 					Element taskElement = (Element) taskElements.item(j);
 					Task task = parseTask(xPath, taskElement);
-					if (task.getId().equals("sid-58B553CF-485F-48E9-98AD-222D1EB2C7A9")) {
-						subProcess.addTask(task);
+					subProcess.addElement(task);
+					
+					if (taskElement.getNodeName().equals("startEvent")) {
+						subProcess.setStart(task);
 					}
+					else if (taskElement.getNodeName().equals("endEvent")) {
+						subProcess.setEnd(task);
+					}
+//					Log.i(this.getClass().getName(), "nodename:" + taskElement.getNodeName());
 				}
-				subProcess.execute(activity);
+				
+
+				NodeList gatewayElements = (NodeList) xPath.evaluate("ns:exclusiveGateway", subProcessElement, XPathConstants.NODESET);
+				for (int j = 0; j < gatewayElements.getLength(); j++) {
+					Element gatewayElement = (Element) gatewayElements.item(j);
+					Gateway gateway = parseGateway(xPath, gatewayElement);
+					subProcess.addElement(gateway);
+				}
+				
+				NodeList flowElements = (NodeList) xPath.evaluate("ns:sequenceFlow", subProcessElement, XPathConstants.NODESET);
+				for (int j = 0; j < flowElements.getLength(); j++) {
+					Element flowElement = (Element) flowElements.item(j);
+					String sourceRef = xPath.evaluate("@sourceRef", flowElement);
+					String targetRef = xPath.evaluate("@targetRef", flowElement);
+					subProcess.addFlow(sourceRef, targetRef);
+				}
+
+				subProcess.print();
+//				subProcess.execute(activity);
+				subProcess.executeNext(activity);
 			}
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Gateway parseGateway(XPath xPath, Object object) {
+		Gateway gateway = null;
+
+		Element gatewayElement = (Element) object;
+		String id;
+		String name;
+		try {
+			id = xPath.evaluate("@id", gatewayElement);
+			name = xPath.evaluate("@name", gatewayElement);
+			gateway = new Gateway(id, name);
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		return gateway;
 	}
 	
 	public Task parseTask(XPath xPath, Object object) {
@@ -132,7 +174,23 @@ public class BpmnParser {
 				}
 				task = new Task(taskId, taskName, className, fs);
 			} else if (className.equals(Service.EMAIL_SERVICE)) {
-
+				EmailService es = new EmailService();
+				String email = xPath.evaluate("mpe:email", service);
+				String subject = xPath.evaluate("mpe:subject", service);
+				String body = xPath.evaluate("mpe:body", service);
+				
+				es.setEmail(email);
+				es.setSubject(subject);
+				
+				if (body.length() > 0) {
+					es.setBody(body);
+				}
+				else {
+					String bodySrc = xPath.evaluate("mpe:body/@src", service);
+					es.setBodySrc(bodySrc);
+				}
+				
+				task = new Task(taskId, taskName, className, es);
 			}
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
