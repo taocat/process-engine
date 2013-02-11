@@ -14,6 +14,8 @@ public class SubProcess {
 	private BpmnElement start;
 	private BpmnElement end;
 	private boolean flows[][];
+	private String conditions[][];
+	private boolean isGateway;
 	private int currentIndex;
 	public static final int BEFORE_EXECUTION = -1;
 	public static final int AFTER_EXECUTION = -2;
@@ -22,6 +24,7 @@ public class SubProcess {
 	public SubProcess() {
 		this.elements= new ArrayList <BpmnElement> (); 
 		this.currentIndex = BEFORE_EXECUTION;
+		this.isGateway = false; 
 	}
 	
 	public SubProcess(String name) {
@@ -46,10 +49,14 @@ public class SubProcess {
 		this.elements.add(element);
 	}
 	
-	public void addFlow(String sourceRef, String targetRef) {
+	public void addFlow(String sourceRef, String targetRef, String condition) {
 		// initialize the matrix if not yet done
 		if (flows == null) {
 			flows = new boolean [elements.size()] [elements.size()];
+		}
+		
+		if (conditions == null) {
+			conditions = new String [elements.size()] [elements.size()];
 		}
 		
 		int sourceIndex = elementId2Index(sourceRef);
@@ -57,6 +64,10 @@ public class SubProcess {
 		if (sourceIndex >= 0 && targetIndex >= 0) {
 			//if both source and target id found
 			flows[sourceIndex] [targetIndex] = true;
+			
+			if (!condition.equals("")) {
+				conditions[sourceIndex] [targetIndex] = condition;
+			}
 		}
 	}
 	
@@ -106,6 +117,13 @@ public class SubProcess {
 				currentTask.execute(activity, this);
 				variables = currentTask.getVariables();
 			}
+			else if (currentElement instanceof Gateway) {
+				Log.i(this.getClass().getName(), "executeNext 2:" + currentElement.getName());
+				isGateway = true;
+				executeNext(activity);
+//				currentTask.execute(activity, this);
+//				variables = currentTask.getVariables();
+			}
 		}
 	}
 	
@@ -116,6 +134,44 @@ public class SubProcess {
 			return elements.indexOf(start);
 		}
 		
+		if (isGateway) {
+			Log.i(this.getClass().getName(), "gateway 1:");
+			int defaultTargetIndex = -1;
+			for (int j = 0; j < elements.size(); j++) {
+				if ( flows[ci][j] ) {
+					if (conditions[ci][j] == null) {
+						Log.i(this.getClass().getName(), "default gateway:" + j);
+						defaultTargetIndex = j;
+					}
+					else {
+						// get expression and expected value in condition
+						String condition = conditions[ci][j];
+						int equalIndex = condition.indexOf('=');
+						String expression = condition.substring(0, equalIndex);
+						String expectedValue = condition.substring(equalIndex + 1);
+						
+						// get runtime value of the expression
+						String runtimeValue = variables.get(expression);
+						
+
+						Log.i(this.getClass().getName(), condition + " : " + runtimeValue);
+						
+						// if it matches, jump to it
+						if (runtimeValue != null && runtimeValue.equals(expectedValue)) {
+							Log.i(this.getClass().getName(), "taking gateway:" + j);
+							return j;
+						}
+					}
+				}
+			}
+			// reset the flag
+			isGateway = false;
+			Log.i(this.getClass().getName(), "taking default gateway:" + defaultTargetIndex);
+			// if none condition matches, jump to default
+			return defaultTargetIndex;
+		}
+		
+		// reach here only when it is not a gateway
 		// try to find the next element
 		for (int j = 0; j < elements.size(); j++) {
 			if ( flows[ci][j] ) {

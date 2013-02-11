@@ -75,7 +75,9 @@ public class BpmnParser {
 					Element flowElement = (Element) flowElements.item(j);
 					String sourceRef = xPath.evaluate("@sourceRef", flowElement);
 					String targetRef = xPath.evaluate("@targetRef", flowElement);
-					subProcess.addFlow(sourceRef, targetRef);
+					String condition = xPath.evaluate("ns:conditionExpression", flowElement);
+					Log.i(this.getClass().getName(),"condition:" + condition);
+					subProcess.addFlow(sourceRef, targetRef, condition);
 				}
 
 				subProcess.print();
@@ -142,6 +144,10 @@ public class BpmnParser {
 						else if(type.equals("submit")) {
 							Button button = new Button(id, type, value);
 							fs.addElement(button);
+						}
+						else if(type.equals("hidden")) {
+							Hidden hidden = new Hidden(id, type, value);
+							fs.addElement(hidden);
 						}
 						Log.i(this.getClass().getName(), "mpe:input");
 					}

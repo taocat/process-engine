@@ -46,8 +46,10 @@ public class FormService extends Service {
 			FormElement e = iterator.next();
 			View label = e.getLabel(context);
 			View view = e.getView(context);
-			layout.addView(label);
-			layout.addView(view);
+			if (view != null) {
+				layout.addView(label);
+				layout.addView(view);
+			}
 			
 			if (e.type.toLowerCase().equals("submit")) {
 				view.setOnClickListener(new OnClickListener(){

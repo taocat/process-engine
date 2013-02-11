@@ -11,7 +11,6 @@ public class EmailService extends Service{
 	private String email;
 	private String subject;
 	private String body;
-	private String bodySrc;
 	
 	public void setEmail(String email) {
 		this.email = email;
@@ -25,10 +24,6 @@ public class EmailService extends Service{
 		this.body = body;
 	}
 	
-	public void setBodySrc(String bodySrc) {
-		this.bodySrc = bodySrc;
-	}
-	
 	public String getEmail() {
 		return email;
 	}
@@ -39,10 +34,6 @@ public class EmailService extends Service{
 	
 	public String getBody() {
 		return body;
-	}
-	
-	public String getBodySrc() {
-		return bodySrc;
 	}
 	
 	@Override
@@ -88,19 +79,6 @@ public class EmailService extends Service{
 			    body = incomingValue;
 			}
 		}
-		
-//		while (iterator.hasNext()) {
-//			FormElement e = iterator.next();
-//			String value = e.getValue();
-//			if (value.startsWith("@")) {
-//			    Log.i(this.getClass().getName(), "Applying Variables:" + value);
-//				String incomingValue = variables.get(value.substring(1));
-//				if (incomingValue != null) {
-//				    Log.i(this.getClass().getName(), "incomingValue:" + incomingValue);
-//					e.setValue(incomingValue);
-//				}
-//			}
-//		}
 	}
 
 }
