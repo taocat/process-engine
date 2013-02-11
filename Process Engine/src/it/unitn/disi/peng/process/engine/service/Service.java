@@ -12,6 +12,8 @@ public abstract class Service {
 	public static final String EMAIL_SERVICE = "it.unitn.disi.peng.process.engine.service.EmailService";
 	
 	protected SubProcess subProcess;
+	
+	protected HashMap<String, String> variables;
 		
 	public abstract View getView(Context context);
 	public abstract HashMap<String, String> getVariables();

@@ -97,7 +97,7 @@ public class SubProcess {
 		Log.i(this.getClass().getName(), "Current Index 1:" + currentIndex);
 		currentIndex = getNextIndex(currentIndex);
 		Log.i(this.getClass().getName(), "Current Index 2:" + currentIndex);
-		if (currentIndex > 0) {
+		if (currentIndex >= 0) {
 			currentElement = elements.get(currentIndex);
 			Log.i(this.getClass().getName(), "executeNext 1:" + currentIndex + ":" + currentElement.getName());
 			if (currentElement instanceof Task) {

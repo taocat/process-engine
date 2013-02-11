@@ -5,28 +5,18 @@ import it.unitn.disi.peng.process.engine.model.SubProcess;
 import it.unitn.disi.peng.process.engine.model.Task;
 import it.unitn.disi.peng.process.engine.service.*;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.*;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.util.Xml;
 
 public class BpmnParser {
 	Activity activity;

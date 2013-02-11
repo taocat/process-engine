@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ public class FormService extends Service {
 	
 	public FormService() {
 		this.elements = new ArrayList<FormElement>();
+		this.variables = new HashMap<String, String>();
 	}
 
 	public void addElement(FormElement e) {
@@ -27,12 +29,18 @@ public class FormService extends Service {
 		while (iterator.hasNext()) {
 			FormElement e = iterator.next();
 			e.updateValue();
+		    Log.i(this.getClass().getName(), "Update variables " + e.getId() + ":" + e.getValue());
+			variables.put(e.getId(), e.getValue());			
 		}
 	}
 	
 	public View getView(final Context context) {
 		LinearLayout layout = new LinearLayout(context);
 		layout.setOrientation(LinearLayout.VERTICAL);
+		
+		// assign incoming values "value=@id" 
+		applyVariables();
+		
 		Iterator<FormElement> iterator = elements.iterator();
 		while (iterator.hasNext()) {
 			FormElement e = iterator.next();
@@ -45,6 +53,7 @@ public class FormService extends Service {
 				view.setOnClickListener(new OnClickListener(){
 
 					public void onClick(View v) {
+						updateElementValues();
 						subProcess.executeNext((Activity) context);
 					}
 					
@@ -55,13 +64,24 @@ public class FormService extends Service {
 	}
 	
 	public HashMap<String, String> getVariables() {
-		HashMap<String, String> variables = new HashMap<String, String>();
+		return variables;
+	}
+	
+	private void applyVariables() {
+	    Log.i(this.getClass().getName(), "Applying Variables");
 		Iterator<FormElement> iterator = elements.iterator();
+		HashMap<String, String> variables = subProcess.getVariables();
 		while (iterator.hasNext()) {
 			FormElement e = iterator.next();
-			e.updateValue();
-			variables.put(e.getId(), e.getValue());			
+			String value = e.getValue();
+			if (value.startsWith("@")) {
+			    Log.i(this.getClass().getName(), "Applying Variables:" + value);
+				String incomingValue = variables.get(value.substring(1));
+				if (incomingValue != null) {
+				    Log.i(this.getClass().getName(), "incomingValue:" + incomingValue);
+					e.setValue(incomingValue);
+				}
+			}
 		}
-		return variables;
 	}
 }
