@@ -35,6 +35,7 @@ public class Task extends BpmnElement {
 	    Log.i(this.getClass().getName(), "Executing task: " + getName());
 	    
 	    service.setSubProcess(subProcess);
+	    service.applyVariables();
 	    
 		if (className.equals(Service.FORM_SERVICE)) {
 			activity.setContentView(service.getView(activity));

@@ -38,4 +38,10 @@ public class GatewayService extends Service {
 		return null;
 	}
 
+	@Override
+	public void applyVariables() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

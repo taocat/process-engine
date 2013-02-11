@@ -39,7 +39,7 @@ public class FormService extends Service {
 		layout.setOrientation(LinearLayout.VERTICAL);
 		
 		// assign incoming values "value=@id" 
-		applyVariables();
+//		applyVariables();
 		
 		Iterator<FormElement> iterator = elements.iterator();
 		while (iterator.hasNext()) {
@@ -67,7 +67,7 @@ public class FormService extends Service {
 		return variables;
 	}
 	
-	private void applyVariables() {
+	public void applyVariables() {
 	    Log.i(this.getClass().getName(), "Applying Variables");
 		Iterator<FormElement> iterator = elements.iterator();
 		HashMap<String, String> variables = subProcess.getVariables();

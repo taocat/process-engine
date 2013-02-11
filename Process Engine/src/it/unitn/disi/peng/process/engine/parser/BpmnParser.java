@@ -171,14 +171,7 @@ public class BpmnParser {
 				
 				es.setEmail(email);
 				es.setSubject(subject);
-				
-				if (body.length() > 0) {
-					es.setBody(body);
-				}
-				else {
-					String bodySrc = xPath.evaluate("mpe:body/@src", service);
-					es.setBodySrc(bodySrc);
-				}
+				es.setBody(body);				
 				
 				task = new Task(taskId, taskName, className, es);
 			}

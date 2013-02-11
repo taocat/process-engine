@@ -17,6 +17,7 @@ public abstract class Service {
 		
 	public abstract View getView(Context context);
 	public abstract HashMap<String, String> getVariables();
+	public abstract void applyVariables();
 	
 	public void setSubProcess(SubProcess subProcess) {
 		this.subProcess = subProcess;
