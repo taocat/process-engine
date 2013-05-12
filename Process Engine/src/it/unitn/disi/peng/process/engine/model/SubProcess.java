@@ -146,21 +146,26 @@ public class SubProcess {
 					else {
 						// get expression and expected value in condition
 						String condition = conditions[ci][j];
-						int equalIndex = condition.indexOf('=');
-						String expression = condition.substring(0, equalIndex);
-						String expectedValue = condition.substring(equalIndex + 1);
-						
-						// get runtime value of the expression
-						String runtimeValue = variables.get(expression);
-						
-
-						Log.i(this.getClass().getName(), condition + " : " + runtimeValue);
-						
-						// if it matches, jump to it
-						if (runtimeValue != null && runtimeValue.equals(expectedValue)) {
-							Log.i(this.getClass().getName(), "taking gateway:" + j);
+						if (isExpressionTrue(condition)) {
+							Log.i(this.getClass().getName(), "taking " + j + ":" + condition);
 							return j;
 						}
+						
+//						int equalIndex = condition.indexOf('=');
+//						String expression = condition.substring(0, equalIndex);
+//						String expectedValue = condition.substring(equalIndex + 1);
+//						
+//						// get runtime value of the expression
+//						String runtimeValue = variables.get(expression);
+//						
+//
+//						Log.i(this.getClass().getName(), condition + " : " + runtimeValue);
+//						
+//						// if it matches, jump to it
+//						if (runtimeValue != null && runtimeValue.equals(expectedValue)) {
+//							Log.i(this.getClass().getName(), "taking gateway:" + j);
+//							return j;
+//						}
 					}
 				}
 			}
@@ -203,5 +208,39 @@ public class SubProcess {
 	
 	public HashMap<String, String> getVariables() {
 		return variables;
+	}
+	
+	public boolean isExpressionTrue(String expr) {
+		expr = expr.replace("&gt;", ">");
+		expr = expr.replace("&amp;", "&");
+		expr = expr.replace("&lt;", "<");
+		
+		Log.i(this.getClass().getName(), expr);
+		
+		String[] simpleExpressions = expr.split("&&");
+		for (String se : simpleExpressions) {
+			Log.i(this.getClass().getName(), se);
+			String[] tokens = se.split("[<=>]");
+			String runtimeValue = variables.get(tokens[0]);
+			Log.i(this.getClass().getName(), "runtime:" + runtimeValue);
+			Log.i(this.getClass().getName(), "expected:" + tokens[1]);
+			if (runtimeValue ==  null) {
+				return false;
+			}
+			
+			if (se.contains("=") && !runtimeValue.equals(tokens[1])) {
+				return false;
+			}
+			
+			if (se.contains("<") && !(Integer.parseInt(runtimeValue) < Integer.parseInt(tokens[1]))) {
+				return false;
+			}
+			
+			if (se.contains(">") && !(Integer.parseInt(runtimeValue) > Integer.parseInt(tokens[1]))) {
+				return false;
+			}
+			
+		}
+		return true;
 	}
 }

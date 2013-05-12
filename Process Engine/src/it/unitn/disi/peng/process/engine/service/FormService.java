@@ -47,7 +47,7 @@ public class FormService extends Service {
 			View label = e.getLabel(context);
 			View view = e.getView(context);
 			if (view != null) {
-				layout.addView(label);
+//				layout.addView(label);
 				layout.addView(view);
 			}
 			
@@ -76,14 +76,69 @@ public class FormService extends Service {
 		while (iterator.hasNext()) {
 			FormElement e = iterator.next();
 			String value = e.getValue();
+			value = replaceVariables(value);
+			e.setValue(value);
 			if (value.startsWith("@")) {
-			    Log.i(this.getClass().getName(), "Applying Variables:" + value);
-				String incomingValue = variables.get(value.substring(1));
-				if (incomingValue != null) {
-				    Log.i(this.getClass().getName(), "incomingValue:" + incomingValue);
-					e.setValue(incomingValue);
+				String[] terms = value.split("\\+");
+				String incomingValue = "";
+				incomingValue += variables.get(terms[0].substring(1));
+			    Log.i(this.getClass().getName(), "+" + variables.get(terms[0].substring(1)));
+				for (int i = 1; i < terms.length; i++) {
+				    Log.i(this.getClass().getName(), "+" + variables.get(terms[i].substring(1)));
+					incomingValue += "\n";
+					incomingValue += variables.get(terms[i].substring(1));
 				}
+			    Log.i(this.getClass().getName(), "incomingValue:" + incomingValue);
+				e.setValue(incomingValue);
+//			    Log.i(this.getClass().getName(), "Applying Variables:" + value);
+//				String incomingValue = variables.get(value.substring(1));
+//				if (incomingValue != null) {
+//				    Log.i(this.getClass().getName(), "incomingValue:" + incomingValue);
+//					e.setValue(incomingValue);
+//				}
 			}
 		}
+	}
+	
+	private String replaceVariables(String v) {
+		if (!v.contains("{")) {
+			return v;
+		}
+		
+		HashMap<String, String> incomingVariables = subProcess.getVariables();
+		
+		char[]chars = v.toCharArray();
+		StringBuilder sb = new StringBuilder();
+		StringBuilder var = null;
+		int state = 0;
+		for (int i = 0; i < chars.length; i++) {
+			char ch = chars[i];
+			if (state == 0) {
+				if (ch == '{') {
+					state = 1;
+				}
+				else {
+					sb.append(ch);
+				}
+			}
+			else if (state == 1) {
+				if (ch == '@') {
+					var = new StringBuilder();
+					state = 2;
+				}
+			}
+			else if (state == 2) {
+				if (ch == '}') {
+				    Log.i(this.getClass().getName(), "var:" + var.toString() + "=" + incomingVariables.get(var.toString()));
+					sb.append(incomingVariables.get(var.toString()));
+					state = 0;
+				}
+				else {
+					var.append(ch);
+				}
+			}
+			
+		}
+		return sb.toString();
 	}
 }
